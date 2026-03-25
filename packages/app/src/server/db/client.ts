@@ -4,14 +4,33 @@ import { getDatabaseUrl } from "@/lib/env";
 import * as schema from "./schema";
 import * as relations from "./relations";
 
-const connectionString = getDatabaseUrl();
+let dbInstance: ReturnType<typeof drizzle> | null = null;
 
-const client = postgres(connectionString, {
-  prepare: false, // Supabase Transaction Mode requer prepare: false
-});
+function initializeDb() {
+  if (dbInstance) {
+    return dbInstance;
+  }
 
-export const db = drizzle(client, {
-  schema: { ...schema, ...relations },
-});
+  const connectionString = getDatabaseUrl();
+  const client = postgres(connectionString, {
+    prepare: false, // Supabase Transaction Mode requer prepare: false
+  });
 
-export type Database = typeof db;
+  dbInstance = drizzle(client, {
+    schema: { ...schema, ...relations },
+  });
+
+  return dbInstance;
+}
+
+export const db = new Proxy(
+  {},
+  {
+    get: (target, prop) => {
+      const instance = initializeDb();
+      return (instance as any)[prop];
+    },
+  }
+) as ReturnType<typeof drizzle>;
+
+export type Database = ReturnType<typeof drizzle>;

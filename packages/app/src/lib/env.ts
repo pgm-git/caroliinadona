@@ -18,5 +18,27 @@ export function getServiceRoleKey(): string {
 }
 
 export function getDatabaseUrl(): string {
-  return getRequiredEnv("SUPABASE_DB_URL");
+  // Tenta usar SUPABASE_DB_URL se disponível, senão deriva da URL pública
+  const explicit = process.env.SUPABASE_DB_URL;
+  if (explicit) {
+    return explicit;
+  }
+
+  // Fallback: gera URL do banco a partir da URL pública
+  // https://xxxxx.supabase.co → postgres://postgres:password@db.xxxxx.supabase.co:5432/postgres
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const password = process.env.SUPABASE_DB_PASSWORD;
+
+  if (!supabaseUrl || !password) {
+    throw new Error(
+      "Must provide either SUPABASE_DB_URL or both NEXT_PUBLIC_SUPABASE_URL and SUPABASE_DB_PASSWORD"
+    );
+  }
+
+  const projectRef = supabaseUrl.split("https://")[1]?.split(".")[0];
+  if (!projectRef) {
+    throw new Error("Invalid NEXT_PUBLIC_SUPABASE_URL format");
+  }
+
+  return `postgres://postgres:${password}@db.${projectRef}.supabase.co:5432/postgres`;
 }
