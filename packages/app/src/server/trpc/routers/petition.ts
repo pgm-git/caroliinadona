@@ -2,6 +2,9 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import { petitionService } from "@/server/services/petition.service";
 import { extractVariables } from "@/lib/petition/variable-extractor";
+import { db } from "@/server/db/client";
+import { petitions } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 export const petitionRouter = router({
   /**
@@ -62,5 +65,52 @@ export const petitionRouter = router({
         contentHtml: input.contentHtml,
         orgId: ctx.orgId,
       });
+    }),
+
+  /**
+   * Refina texto de petição com GPT-4o.
+   * Adiciona fundamentação jurídica, citações.
+   */
+  refineWithAI: protectedProcedure
+    .input(
+      z.object({
+        petitionId: z.string().uuid(),
+        petitionType: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // 1. Busca petição atual
+      const petition = await db
+        .select()
+        .from(petitions)
+        .where(eq(petitions.id, input.petitionId))
+        .limit(1);
+
+      if (!petition || petition.length === 0) {
+        throw new Error(`Petition ${input.petitionId} not found`);
+      }
+
+      const current = petition[0];
+      const contentHtml = current.contentHtml || "";
+
+      // 2. Refina com GPT-4o
+      const { refinedHtml, citations } = await petitionService.refineLegalText(
+        contentHtml,
+        input.petitionType
+      );
+
+      // 3. Atualiza petição com HTML refinado
+      await petitionService.updateContent({
+        petitionId: input.petitionId,
+        contentHtml: refinedHtml,
+        orgId: ctx.orgId,
+      });
+
+      return {
+        success: true,
+        refinedHtml,
+        citations,
+        message: `Petição refinada com ${citations.length} citações adicionadas`,
+      };
     }),
 });

@@ -6,8 +6,10 @@
 import { db } from "@/server/db/client";
 import { petitions } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
+import OpenAI from "openai";
 import { renderTemplate } from "@/lib/petition/template-renderer";
 import { templateService } from "./template.service";
+import { getRefinementPrompt, REFINEMENT_SYSTEM_PROMPT } from "@/server/config/petition-prompts";
 
 export interface GeneratePetitionParams {
   caseId: string;
@@ -179,6 +181,86 @@ class PetitionService {
       .replace(/<[^>]+>/g, "")
       .replace(/\s+/g, " ")
       .trim();
+  }
+
+  /**
+   * Refina texto de petição com GPT-4o.
+   * Adiciona fundamentação jurídica, citações, melhora coesão.
+   * Com timeout 15s e fallback para HTML original se falhar.
+   */
+  async refineLegalText(
+    contentHtml: string,
+    petitionType: string
+  ): Promise<{ refinedHtml: string; citations: string[] }> {
+    try {
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        console.warn("[petition] OPENAI_API_KEY not set, skipping refinement");
+        return { refinedHtml: contentHtml, citations: [] };
+      }
+
+      const client = new OpenAI({ apiKey });
+      const prompt = getRefinementPrompt(petitionType);
+
+      console.log(`[petition] Refining legal text for petition type ${petitionType}`);
+
+      // Executa com timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+      try {
+        const response = await client.chat.completions.create(
+          {
+            model: "gpt-4o",
+            messages: [
+              { role: "system", content: REFINEMENT_SYSTEM_PROMPT },
+              { role: "user", content: `${prompt}\n\n${contentHtml}` },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0,
+            max_tokens: 4096,
+          },
+          { signal: controller.signal as unknown as AbortSignal }
+        );
+
+        clearTimeout(timeoutId);
+
+        const responseText = response.choices[0]?.message?.content;
+        if (!responseText) {
+          console.warn("[petition] Empty response from GPT-4o");
+          return { refinedHtml: contentHtml, citations: [] };
+        }
+
+        const parsed = JSON.parse(responseText) as {
+          refinedHtml: string;
+          citations: string[];
+          modifications: string[];
+        };
+
+        console.log(
+          `[petition] Refinement complete. Citations: ${parsed.citations.join(", ")}`
+        );
+
+        return {
+          refinedHtml: parsed.refinedHtml,
+          citations: parsed.citations,
+        };
+      } catch (error) {
+        clearTimeout(timeoutId);
+
+        if (error instanceof Error && error.name === "AbortError") {
+          console.warn("[petition] Refinement timeout (15s), using original HTML");
+        } else {
+          console.error("[petition] Refinement error:", error);
+        }
+
+        // Fallback: return original HTML without refinement
+        return { refinedHtml: contentHtml, citations: [] };
+      }
+    } catch (error) {
+      console.error("[petition] Unexpected error in refineLegalText:", error);
+      return { refinedHtml: contentHtml, citations: [] };
+    }
   }
 }
 
