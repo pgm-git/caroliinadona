@@ -5,6 +5,23 @@ import { db } from "@/server/db/client";
 import { cases as casesTable } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
+const VALID_STATUSES = [
+  "received",
+  "analyzing",
+  "extraction_complete",
+  "validation_pending",
+  "validated",
+  "calculation_pending",
+  "calculated",
+  "petition_generating",
+  "petition_generated",
+  "reviewed",
+  "filed",
+  "exception",
+] as const;
+
+const caseStatusSchema = z.enum(VALID_STATUSES);
+
 export const workflowRouter = router({
   /**
    * Avança o status de um case para o próximo estado válido.
@@ -13,7 +30,7 @@ export const workflowRouter = router({
     .input(
       z.object({
         caseId: z.string().uuid(),
-        toStatus: z.string().min(1),
+        toStatus: caseStatusSchema,
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -47,7 +64,7 @@ export const workflowRouter = router({
     .input(
       z.object({
         caseId: z.string().uuid(),
-        targetStatus: z.string().min(1),
+        targetStatus: caseStatusSchema,
         reason: z.string().min(10),
       })
     )

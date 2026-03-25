@@ -148,7 +148,7 @@ export default function CaseDetailPage() {
                       if (select.value) {
                         advanceMutation.mutate({
                           caseId,
-                          toStatus: select.value,
+                          toStatus: select.value as any,
                         });
                       }
                     }}
