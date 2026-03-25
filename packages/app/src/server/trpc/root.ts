@@ -8,6 +8,7 @@ import { validationRouter } from "./routers/validation";
 import { classificationRouter } from "./routers/classification";
 import { calculationRouter } from "./routers/calculation";
 import { petitionRouter } from "./routers/petition";
+import { workflowRouter } from "./routers/workflow";
 
 export const appRouter = router({
   health: healthRouter,
@@ -19,6 +20,7 @@ export const appRouter = router({
   classification: classificationRouter,
   calculation: calculationRouter,
   petition: petitionRouter,
+  workflow: workflowRouter,
 });
 
 export type AppRouter = typeof appRouter;
