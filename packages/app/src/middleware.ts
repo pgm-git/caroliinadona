@@ -5,15 +5,27 @@ import { createServerClient } from "@supabase/ssr";
 const publicRoutes = ["/login", "/register", "/forgot-password", "/reset-password", "/auth-callback"];
 
 export async function middleware(request: NextRequest) {
-  const response = await updateSession(request);
   const { pathname } = request.nextUrl;
 
   // Allow public routes
   if (publicRoutes.some((route) => pathname.startsWith(route)) || pathname === "/") {
-    return response;
+    return NextResponse.next();
   }
 
-  // Check auth for protected routes
+  // Allow API routes for demo login/logout
+  if (pathname.startsWith("/api/demo-")) {
+    return NextResponse.next();
+  }
+
+  // Demo mode: if demo-session cookie exists, allow through
+  const demoSession = request.cookies.get("demo-session");
+  if (demoSession?.value === "true") {
+    return NextResponse.next();
+  }
+
+  // Regular Supabase auth
+  const response = await updateSession(request);
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

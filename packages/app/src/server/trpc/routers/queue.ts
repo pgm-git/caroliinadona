@@ -21,6 +21,9 @@ export const queueRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        return { items: [], total: 0, page: 1, pageSize: input.pageSize, totalPages: 0 };
+      }
       const conditions = [
         eq(documents.orgId, ctx.orgId),
         isNull(documents.deletedAt),
@@ -95,6 +98,9 @@ export const queueRouter = router({
    * Get document count summary by status.
    */
   summary: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.isDemo) {
+      return { total: 0, pending: 0, processing: 0, completed: 0, errors: 0 };
+    }
     const baseCondition = and(
       eq(documents.orgId, ctx.orgId),
       isNull(documents.deletedAt)
@@ -144,6 +150,10 @@ export const queueRouter = router({
   reprocess: protectedProcedure
     .input(z.object({ documentId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        return { success: true };
+      }
+
       // Reset processing state
       const [doc] = await db
         .update(documents)

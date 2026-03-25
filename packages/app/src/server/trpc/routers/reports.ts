@@ -15,6 +15,7 @@ export const reportsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { content: "", filename: "demo.csv", mimeType: "text/csv" };
       const csv = await reportsService.generateCasesCSV({
         orgId: ctx.orgId,
         status: input.status,
@@ -35,6 +36,7 @@ export const reportsRouter = router({
   getCaseSummaryHTML: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) return null;
       const caseData = await reportsService.getCaseSummary(
         input.caseId,
         ctx.orgId
@@ -59,6 +61,7 @@ export const reportsRouter = router({
    * Get statistics report for organization
    */
   getStatisticsReport: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.isDemo) return null;
     return reportsService.generateStatisticsReport(ctx.orgId);
   }),
 });

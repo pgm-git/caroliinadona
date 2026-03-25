@@ -30,6 +30,7 @@ const enforceAuth = t.middleware(({ ctx, next }) => {
       user: ctx.user,
       orgId: ctx.orgId,
       role: ctx.role!,
+      isDemo: ctx.isDemo,
     },
   });
 });

@@ -12,6 +12,7 @@ export const extractionRouter = router({
   getByDocument: protectedProcedure
     .input(z.object({ documentId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) return null;
       const [extraction] = await db
         .select()
         .from(extractedData)
@@ -67,6 +68,7 @@ export const extractionRouter = router({
   approve: protectedProcedure
     .input(z.object({ extractedDataId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { success: true };
       const [updated] = await db
         .update(extractedData)
         .set({
@@ -102,6 +104,7 @@ export const extractionRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { success: true };
       // Get current extraction
       const [current] = await db
         .select()
@@ -165,6 +168,7 @@ export const extractionRouter = router({
   reprocess: protectedProcedure
     .input(z.object({ documentId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { success: true };
       // Get document
       const [doc] = await db
         .select()

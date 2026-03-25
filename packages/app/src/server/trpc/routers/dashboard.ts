@@ -3,12 +3,18 @@ import { router, protectedProcedure } from "../trpc";
 import { db } from "@/server/db/client";
 import { cases as casesTable, exceptions } from "@/server/db/schema";
 import { eq, and, count } from "drizzle-orm";
+import { getDemoMetrics } from "@/lib/demo-data";
 
 export const dashboardRouter = router({
   /**
    * Obtém métricas do dashboard.
    */
   getMetrics: protectedProcedure.query(async ({ ctx }) => {
+    // Demo mode: return mock data
+    if (ctx.isDemo) {
+      return getDemoMetrics();
+    }
+
     // Total de casos
     const [{ total }] = await db
       .select({ total: count() })

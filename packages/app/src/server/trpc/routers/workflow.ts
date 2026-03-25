@@ -4,6 +4,7 @@ import { workflowService, WORKFLOW_STATES, STATE_DESCRIPTIONS } from "@/server/s
 import { db } from "@/server/db/client";
 import { cases as casesTable } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
+import { DEMO_CASES } from "@/lib/demo-data";
 
 const VALID_STATUSES = [
   "received",
@@ -34,7 +35,10 @@ export const workflowRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // Busca case atual
+      if (ctx.isDemo) {
+        return { success: true, newStatus: input.toStatus };
+      }
+
       const [caseData] = await db
         .select()
         .from(casesTable)
@@ -45,7 +49,6 @@ export const workflowRouter = router({
         throw new Error(`Case ${input.caseId} not found`);
       }
 
-      // Avança status
       await workflowService.advanceStatus({
         caseId: input.caseId,
         fromStatus: caseData.status,
@@ -69,6 +72,10 @@ export const workflowRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        return { success: true, newStatus: input.targetStatus };
+      }
+
       await workflowService.revertToStatus(
         input.caseId,
         input.targetStatus,
@@ -85,7 +92,23 @@ export const workflowRouter = router({
    */
   getNextStates: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        const demoCase = DEMO_CASES.find((c) => c.id === input.caseId);
+        const currentStatus = demoCase?.status || "received";
+        const nextStates = workflowService.getNextStates(currentStatus);
+        return {
+          currentStatus,
+          nextStates,
+          descriptions: Object.fromEntries(
+            nextStates.map((status) => [
+              status,
+              STATE_DESCRIPTIONS[status as keyof typeof STATE_DESCRIPTIONS],
+            ])
+          ),
+        };
+      }
+
       const [caseData] = await db
         .select()
         .from(casesTable)
@@ -116,6 +139,30 @@ export const workflowRouter = router({
   getCaseHistory: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        return [
+          {
+            id: "demo-history-1",
+            caseId: input.caseId,
+            action: "STATUS_CHANGE" as const,
+            fromStatus: "received",
+            toStatus: "analyzing",
+            createdBy: "demo@carolina.app",
+            reason: undefined,
+            createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+          },
+          {
+            id: "demo-history-2",
+            caseId: input.caseId,
+            action: "STATUS_CHANGE" as const,
+            fromStatus: "analyzing",
+            toStatus: "extraction_complete",
+            createdBy: "demo@carolina.app",
+            reason: undefined,
+            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          },
+        ];
+      }
       return workflowService.getCaseHistory(input.caseId, ctx.orgId);
     }),
 

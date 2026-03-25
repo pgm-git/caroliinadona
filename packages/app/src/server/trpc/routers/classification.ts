@@ -9,6 +9,7 @@ export const classificationRouter = router({
   classify: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { success: true } as any;
       const result = await classificationService.classifyCase(
         input.caseId,
         ctx.orgId
@@ -30,6 +31,7 @@ export const classificationRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { success: true };
       await classificationService.overrideClassification(
         input.caseId,
         ctx.orgId,

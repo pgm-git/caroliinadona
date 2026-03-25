@@ -28,6 +28,11 @@ export function UserMenu({ userName, userEmail, userRole, orgName }: UserMenuPro
     .toUpperCase();
 
   async function handleSignOut() {
+    // Check if in demo mode
+    if (document.cookie.includes("demo-session=true")) {
+      window.location.href = "/api/demo-logout";
+      return;
+    }
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");

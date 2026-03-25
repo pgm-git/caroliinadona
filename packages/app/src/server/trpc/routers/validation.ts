@@ -12,6 +12,7 @@ export const validationRouter = router({
   runValidation: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { issues: [], count: 0 };
       const issues = await validationService.validateCase(
         input.caseId,
         ctx.orgId
@@ -25,6 +26,7 @@ export const validationRouter = router({
   listByCase: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { items: [], summary: { total: 0, blocking: 0, warnings: 0, passed: 0, hasBlockingIssues: false } };
       const items = await db
         .select()
         .from(validations)
@@ -67,6 +69,7 @@ export const validationRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { success: true };
       await validationService.resolveValidation(
         input.validationId,
         ctx.orgId,

@@ -37,19 +37,27 @@ export default function Home() {
           automaticos, geracao de peticoes com IA e gestao completa do fluxo
           processual.
         </p>
-        <div className="mt-10 flex items-center justify-center gap-4">
-          <Link
-            href="/register"
-            className="rounded-lg bg-navy px-8 py-3 text-base font-semibold text-white shadow-sm hover:bg-navy/90"
+        <div className="mt-10 flex flex-col items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/register"
+              className="rounded-lg bg-navy px-8 py-3 text-base font-semibold text-white shadow-sm hover:bg-navy/90"
+            >
+              Comecar Agora
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-lg border border-gray-300 px-8 py-3 text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+            >
+              Ja tenho conta
+            </Link>
+          </div>
+          <a
+            href="/api/demo-login"
+            className="rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 px-8 py-3 text-base font-semibold text-blue-700 shadow-sm hover:bg-blue-100 hover:border-blue-400 transition-colors"
           >
-            Comecar Agora
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-lg border border-gray-300 px-8 py-3 text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
-          >
-            Ja tenho conta
-          </Link>
+            Ver Demonstracao
+          </a>
         </div>
       </section>
 

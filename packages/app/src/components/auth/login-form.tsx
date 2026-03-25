@@ -97,6 +97,19 @@ export function LoginForm() {
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Entrando..." : "Entrar"}
           </Button>
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">ou</span>
+            </div>
+          </div>
+          <a href="/api/demo-login" className="w-full">
+            <Button type="button" variant="outline" className="w-full">
+              Entrar como Demo
+            </Button>
+          </a>
           <div className="flex w-full justify-between text-sm">
             <Link
               href="/forgot-password"

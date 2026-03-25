@@ -11,7 +11,8 @@ export const documentsRouter = router({
    */
   getSignedUrl: protectedProcedure
     .input(z.object({ storagePath: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { url: "" };
       const url = await storageService.getSignedUrl(input.storagePath);
       return { url };
     }),
@@ -26,6 +27,7 @@ export const documentsRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) return [];
       const docs = await db
         .select()
         .from(documents)
@@ -47,6 +49,7 @@ export const documentsRouter = router({
   delete: protectedProcedure
     .input(z.object({ documentId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) return { success: true };
       await storageService.deleteDocument(input.documentId, ctx.orgId);
       return { success: true };
     }),

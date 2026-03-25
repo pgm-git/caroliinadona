@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import { casesService } from "@/server/services/cases.service";
 import { TRPCError } from "@trpc/server";
+import { getDemoCasesList, DEMO_CASES } from "@/lib/demo-data";
 
 export const casesRouter = router({
   create: protectedProcedure
@@ -15,6 +16,23 @@ export const casesRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        return {
+          id: crypto.randomUUID(),
+          orgId: ctx.orgId,
+          internalReference: `DEMO-${Date.now()}`,
+          title: input.title,
+          caseType: input.caseType,
+          status: "received" as const,
+          description: input.description || null,
+          priority: input.priority,
+          courtId: null,
+          createdBy: ctx.user.id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+      }
+
       const newCase = await casesService.create({
         orgId: ctx.orgId,
         title: input.title,
@@ -43,6 +61,10 @@ export const casesRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        return getDemoCasesList(input);
+      }
+
       return casesService.list({
         orgId: ctx.orgId,
         ...input,
@@ -52,6 +74,14 @@ export const casesRouter = router({
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
+      if (ctx.isDemo) {
+        const found = DEMO_CASES.find((c) => c.id === input.id);
+        if (!found) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Caso nao encontrado." });
+        }
+        return found;
+      }
+
       const result = await casesService.getById(input.id, ctx.orgId);
       if (!result) {
         throw new TRPCError({

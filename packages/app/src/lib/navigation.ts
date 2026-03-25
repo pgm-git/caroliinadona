@@ -28,7 +28,7 @@ export const navigationItems: NavItem[] = [
   },
   {
     label: "Casos",
-    href: "/cases",
+    href: "/cases/list",
     icon: Briefcase,
     roles: ["admin", "coordinator", "lawyer", "intern"],
   },
