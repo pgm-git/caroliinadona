@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import { db } from "@/server/db/client";
-import { cases as casesTable } from "@/server/db/schema";
+import { cases as casesTable, exceptions } from "@/server/db/schema";
 import { eq, and, count } from "drizzle-orm";
 
 export const dashboardRouter = router({
@@ -41,11 +41,19 @@ export const dashboardRouter = router({
       .orderBy(casesTable.createdAt)
       .limit(5);
 
+    // Exceções abertas
+    const openExceptions = await db
+      .select()
+      .from(exceptions)
+      .where(eq(exceptions.orgId, ctx.orgId))
+      .limit(5);
+
     return {
       total,
       statusBreakdown,
       myCases,
       recent,
+      openExceptions,
     };
   }),
 });

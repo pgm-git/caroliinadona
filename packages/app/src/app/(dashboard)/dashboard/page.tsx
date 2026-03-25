@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const statusBreakdown = metrics?.statusBreakdown || [];
   const myCases = metrics?.myCases || [];
   const recent = metrics?.recent || [];
+  const openExceptions = metrics?.openExceptions || [];
   const total = metrics?.total || 0;
 
   // Count status breakdown
@@ -224,6 +225,50 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Exceções Abertas */}
+      {openExceptions.length > 0 && (
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-red-900">Exceções Abertas</CardTitle>
+            <Link href="/exceptions">
+              <Button size="sm" variant="outline">
+                Gerenciar
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {openExceptions.map((exception) => (
+                <div
+                  key={exception.id}
+                  className="flex items-start gap-3 p-3 bg-white rounded border border-red-200"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-gray-900">
+                      {exception.title}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {exception.description.substring(0, 100)}...
+                    </p>
+                  </div>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${
+                      exception.severity === "critical"
+                        ? "bg-red-200 text-red-800"
+                        : exception.severity === "high"
+                          ? "bg-orange-200 text-orange-800"
+                          : "bg-yellow-200 text-yellow-800"
+                    }`}
+                  >
+                    {exception.severity}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Meus Casos */}
       <Card>
