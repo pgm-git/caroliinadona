@@ -28,13 +28,11 @@ export const workflowRouter = router({
         throw new Error(`Case ${input.caseId} not found`);
       }
 
-      const fromStatus = caseData.status as any;
-
       // Avança status
       await workflowService.advanceStatus({
         caseId: input.caseId,
-        fromStatus,
-        toStatus: input.toStatus as any,
+        fromStatus: caseData.status,
+        toStatus: input.toStatus,
         orgId: ctx.orgId,
         userId: ctx.user.id,
       });
@@ -56,7 +54,7 @@ export const workflowRouter = router({
     .mutation(async ({ input, ctx }) => {
       await workflowService.revertToStatus(
         input.caseId,
-        input.targetStatus as any,
+        input.targetStatus,
         ctx.orgId,
         ctx.user.id,
         input.reason
@@ -81,11 +79,10 @@ export const workflowRouter = router({
         throw new Error(`Case ${input.caseId} not found`);
       }
 
-      const currentStatus = caseData.status as any;
-      const nextStates = workflowService.getNextStates(currentStatus);
+      const nextStates = workflowService.getNextStates(caseData.status);
 
       return {
-        currentStatus,
+        currentStatus: caseData.status,
         nextStates,
         descriptions: Object.fromEntries(
           nextStates.map((status) => [

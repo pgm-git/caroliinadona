@@ -3,6 +3,7 @@
 import { Breadcrumb } from "./breadcrumb";
 import { UserMenu } from "./user-menu";
 import { MobileSidebar } from "./mobile-sidebar";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import type { Role } from "@/lib/auth/roles";
 
 interface HeaderProps {
@@ -19,12 +20,15 @@ export function Header({ userName, userEmail, userRole, orgName }: HeaderProps) 
         <MobileSidebar role={userRole} />
         <Breadcrumb />
       </div>
-      <UserMenu
-        userName={userName}
-        userEmail={userEmail}
-        userRole={userRole}
-        orgName={orgName}
-      />
+      <div className="flex items-center gap-2">
+        <NotificationBell />
+        <UserMenu
+          userName={userName}
+          userEmail={userEmail}
+          userRole={userRole}
+          orgName={orgName}
+        />
+      </div>
     </header>
   );
 }

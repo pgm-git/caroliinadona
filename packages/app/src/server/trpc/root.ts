@@ -10,6 +10,7 @@ import { calculationRouter } from "./routers/calculation";
 import { petitionRouter } from "./routers/petition";
 import { workflowRouter } from "./routers/workflow";
 import { dashboardRouter } from "./routers/dashboard";
+import { notificationsRouter } from "./routers/notifications";
 
 export const appRouter = router({
   health: healthRouter,
@@ -23,6 +24,7 @@ export const appRouter = router({
   petition: petitionRouter,
   workflow: workflowRouter,
   dashboard: dashboardRouter,
+  notifications: notificationsRouter,
 });
 
 export type AppRouter = typeof appRouter;

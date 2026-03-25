@@ -29,6 +29,7 @@ import {
   correctionIndexEnum,
   petitionStatusEnum,
   auditActionEnum,
+  notificationTypeEnum,
 } from "./enums";
 
 // =============================================================================
@@ -816,5 +817,45 @@ export const auditLog = pgTable(
       table.createdAt
     ),
     index("idx_audit_log_org_timeline").on(table.orgId, table.createdAt),
+  ]
+);
+
+// =============================================================================
+// NOTIFICATIONS
+// =============================================================================
+
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    type: notificationTypeEnum("type").notNull(),
+    title: text("title").notNull(),
+    message: text("message").notNull(),
+    caseId: uuid("case_id").references(() => cases.id, { onDelete: "cascade" }),
+    actionUrl: text("action_url"),
+    data: jsonb("data").default({}),
+    isRead: boolean("is_read").notNull().default(false),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("idx_notifications_user").on(table.userId),
+    index("idx_notifications_user_unread").on(
+      table.userId,
+      table.isRead,
+      table.createdAt
+    ),
+    index("idx_notifications_org").on(table.orgId),
+    index("idx_notifications_case").on(table.caseId),
+    index("idx_notifications_expires").on(table.expiresAt),
   ]
 );

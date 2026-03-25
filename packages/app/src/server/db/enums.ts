@@ -120,3 +120,15 @@ export const auditActionEnum = pgEnum("audit_action", [
   "PETITION_GENERATE",
   "PETITION_FILE",
 ]);
+
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "status_change",
+  "document_processed",
+  "validation_complete",
+  "calculation_complete",
+  "petition_generated",
+  "exception_raised",
+  "system_info",
+  "system_warning",
+  "system_error",
+]);
