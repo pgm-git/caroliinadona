@@ -6,6 +6,7 @@ import { queueRouter } from "./routers/queue";
 import { extractionRouter } from "./routers/extraction";
 import { validationRouter } from "./routers/validation";
 import { classificationRouter } from "./routers/classification";
+import { calculationRouter } from "./routers/calculation";
 
 export const appRouter = router({
   health: healthRouter,
@@ -15,6 +16,7 @@ export const appRouter = router({
   extraction: extractionRouter,
   validation: validationRouter,
   classification: classificationRouter,
+  calculation: calculationRouter,
 });
 
 export type AppRouter = typeof appRouter;
