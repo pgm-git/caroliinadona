@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petição Inicial de Ação Monitória</title>
+  <style>
+    body {
+      font-family: "Times New Roman", Times, serif;
+      line-height: 1.5;
+      margin: 3cm;
+      font-size: 12pt;
+      text-align: justify;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2cm;
+    }
+    .court-info {
+      text-align: center;
+      margin-bottom: 1cm;
+      font-weight: bold;
+    }
+    .title {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 1cm 0;
+    }
+    .parties {
+      margin: 1cm 0;
+    }
+    .party {
+      margin: 0.5cm 0;
+    }
+    .body {
+      margin: 1cm 0;
+    }
+    .section-title {
+      font-weight: bold;
+      text-decoration: underline;
+      margin-top: 1cm;
+      margin-bottom: 0.5cm;
+    }
+    .prayer {
+      margin-top: 1.5cm;
+      font-weight: bold;
+    }
+    .signature {
+      margin-top: 2cm;
+      text-align: center;
+    }
+    .signature-line {
+      margin-top: 0.5cm;
+      border-top: 1px solid black;
+      width: 50%;
+      margin-left: 25%;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="court-info">
+    TRIBUNAL DE JUSTIÇA DO ESTADO DE {{state}}<br>
+    {{tribunal}}<br>
+    Vara de {{varName}}
+  </div>
+
+  <div class="title">
+    PETIÇÃO INICIAL DE AÇÃO MONITÓRIA
+  </div>
+
+  <div class="parties">
+    <div class="party">
+      <strong>Requerente:</strong> {{creditorName}}, {{creditorDocumentType}} nº {{creditorDocumentNumber}}, residente e domiciliado {{creditorAddress}}
+    </div>
+    <div class="party">
+      <strong>Requerido:</strong> {{debtorName}}, {{debtorDocumentType}} nº {{debtorDocumentNumber}}, residente e domiciliado {{debtorAddress}}
+    </div>
+  </div>
+
+  <div class="body">
+    <p>
+      {{creditorName}}, pessoa {{creditorPersonType}}, por seu advogado e procurador infra assinado, vem perante vossa excelência, intentar a presente AÇÃO MONITÓRIA contra {{debtorName}}, pessoa {{debtorPersonType}}, conforme facultado pelo artigo 700 do Código de Processo Civil, pelos fundamentos que passa a expor.
+    </p>
+
+    <div class="section-title">I. DO DIREITO</div>
+    <p>
+      A ação monitória é procedimento especial criado pelo legislador civil para permitir ao credor cobrar dívida líquida, certa e exigível, através de expedição de mandado de pagamento, sem necessidade de propositura de ação de cobrança convencional.
+    </p>
+    <p>
+      O artigo 700 do Código de Processo Civil autoriza a ação monitória "para cobrar dívida de certa quantia em dinheiro resultante de contrato ou de causa legal".
+    </p>
+    <p>
+      {{refinementHtml}}
+    </p>
+
+    <div class="section-title">II. DOS FATOS</div>
+    <p>
+      Entre as partes foi firmado contrato, datado de {{contractDate}}, pelo qual o requerido obrigou-se a pagar ao requerente quantia certa e líquida de R$ {{principalAmountFormatted}}.
+    </p>
+    <p>
+      O requerido, em desacordo com o pactuado, deixou de cumprir sua obrigação desde {{defaultDate}}, inadimplindo o contrato.
+    </p>
+    <p>
+      Reclama-se o pagamento da referida dívida, agora acrescida de correção monetária, juros e demais encargos legais, totalizando R$ {{totalAmountFormatted}}, compostos de:
+    </p>
+    <ul>
+      <li>Principal: R$ {{principalAmountFormatted}}</li>
+      <li>Correção Monetária: R$ {{correctionDifferenceFormatted}}</li>
+      <li>Juros Moratórios: R$ {{interestAmountFormatted}}</li>
+      <li>Multa de Mora: R$ {{penaltyAmountFormatted}}</li>
+      <li>Honorários de Advogado: R$ {{attorneyFeesAmountFormatted}}</li>
+    </ul>
+
+    <p>
+      A dívida é líquida (valor certo), certa (é devida) e exigível (vencida), preenchendo todos os requisitos para cabimento da ação monitória.
+    </p>
+
+    <div class="section-title">III. DO PEDIDO</div>
+    <p>
+      Diante do exposto, requer-se:
+    </p>
+    <ol>
+      <li>A condenação do requerido {{debtorName}} ao pagamento da quantia de R$ {{totalAmountFormatted}} ({{totalAmountWords}});</li>
+      <li>O pagamento de custas processuais e honorários advocatícios;</li>
+      <li>A expedição de mandado de pagamento conforme previsto na legislação processual.</li>
+    </ol>
+
+    <div class="prayer">
+      Termos em que pede deferimento.
+    </div>
+  </div>
+
+  <div class="signature">
+    {{city}}, {{filingDate}}
+    <div class="signature-line">
+      {{lawyerName}}<br>
+      OAB {{lawyerOabState}}/{{lawyerOabNumber}}
+    </div>
+  </div>
+</body>
+</html>
