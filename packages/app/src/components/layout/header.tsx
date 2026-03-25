@@ -4,6 +4,7 @@ import { Breadcrumb } from "./breadcrumb";
 import { UserMenu } from "./user-menu";
 import { MobileSidebar } from "./mobile-sidebar";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { Role } from "@/lib/auth/roles";
 
 interface HeaderProps {
@@ -21,6 +22,7 @@ export function Header({ userName, userEmail, userRole, orgName }: HeaderProps) 
         <Breadcrumb />
       </div>
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <NotificationBell />
         <UserMenu
           userName={userName}
