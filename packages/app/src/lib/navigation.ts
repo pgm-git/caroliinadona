@@ -7,6 +7,7 @@ import {
   BarChart3,
   Settings,
   Inbox,
+  AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/lib/auth/roles";
@@ -42,6 +43,12 @@ export const navigationItems: NavItem[] = [
     href: "/queue",
     icon: Inbox,
     roles: ["admin", "coordinator", "lawyer", "intern"],
+  },
+  {
+    label: "Exceções",
+    href: "/exceptions",
+    icon: AlertTriangle,
+    roles: ["admin", "coordinator", "lawyer"],
   },
   {
     label: "Petições",
@@ -80,6 +87,7 @@ export const breadcrumbLabels: Record<string, string> = {
   petitions: "Petições",
   templates: "Templates",
   reports: "Relatórios",
+  exceptions: "Exceções",
   queue: "Fila de Entrada",
   settings: "Configurações",
   team: "Equipe",
