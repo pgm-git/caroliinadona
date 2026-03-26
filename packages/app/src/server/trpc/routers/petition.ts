@@ -8,6 +8,7 @@ import { extractVariables } from "@/lib/petition/variable-extractor";
 import { db } from "@/server/db/client";
 import { petitions } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
+import { getDemoCasePetition, getDemoCasePetitionHistory } from "@/lib/demo-data";
 
 export const petitionRouter = router({
   generate: protectedProcedure
@@ -27,14 +28,14 @@ export const petitionRouter = router({
   getCurrent: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
-      if (ctx.isDemo) return null;
+      if (ctx.isDemo) return getDemoCasePetition(input.caseId);
       return petitionService.getCurrent(input.caseId, ctx.orgId);
     }),
 
   getHistory: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
-      if (ctx.isDemo) return [];
+      if (ctx.isDemo) return getDemoCasePetitionHistory(input.caseId);
       return petitionService.getHistory(input.caseId, ctx.orgId);
     }),
 

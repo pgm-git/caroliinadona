@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import { calculationService } from "@/server/services/calculation.service";
+import { getDemoCaseCalculation, getDemoCaseCalculationHistory } from "@/lib/demo-data";
 
 export const calculationRouter = router({
   calculate: protectedProcedure
@@ -47,14 +48,14 @@ export const calculationRouter = router({
   getCurrent: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
-      if (ctx.isDemo) return null;
+      if (ctx.isDemo) return getDemoCaseCalculation(input.caseId);
       return calculationService.getCurrentCalculation(input.caseId, ctx.orgId);
     }),
 
   getHistory: protectedProcedure
     .input(z.object({ caseId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
-      if (ctx.isDemo) return [];
+      if (ctx.isDemo) return getDemoCaseCalculationHistory(input.caseId);
       return calculationService.getCalculationHistory(input.caseId, ctx.orgId);
     }),
 

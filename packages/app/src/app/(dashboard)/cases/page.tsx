@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CaseList } from "@/components/cases/case-list";
 import { CaseFilters } from "@/components/cases/case-filters";
 import { Plus } from "lucide-react";
-
-// TODO: Replace with real tRPC query when auth is connected
-const MOCK_CASES: never[] = [];
+import { trpc } from "@/lib/trpc/client";
 
 export default function CasesPage() {
   const [page, setPage] = useState(1);
@@ -16,10 +14,19 @@ export default function CasesPage() {
   const [status, setStatus] = useState("");
   const [caseType, setCaseType] = useState("");
 
-  // Placeholder: in production, use trpc.cases.list.useQuery(...)
-  const items = MOCK_CASES;
-  const total = 0;
-  const totalPages = 0;
+  const { data, isLoading } = trpc.cases.list.useQuery({
+    page,
+    pageSize: 20,
+    search: search || undefined,
+    status: status || undefined,
+    caseType: caseType || undefined,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.ceil(total / 20);
 
   function clearFilters() {
     setSearch("");
@@ -64,13 +71,17 @@ export default function CasesPage() {
         onClear={clearFilters}
       />
 
-      <CaseList
-        items={items}
-        total={total}
-        page={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+      {isLoading ? (
+        <div className="py-12 text-center text-gray-500 text-sm">Carregando casos...</div>
+      ) : (
+        <CaseList
+          items={items}
+          total={total}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   );
 }

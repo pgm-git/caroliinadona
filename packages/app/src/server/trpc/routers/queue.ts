@@ -4,6 +4,7 @@ import { db } from "@/server/db/client";
 import { documents, cases } from "@/server/db/schema";
 import { eq, and, isNull, isNotNull, desc, count, sql } from "drizzle-orm";
 import { getQueue, QUEUE_NAMES } from "@/server/queue";
+import { getDemoQueueItems, getDemoQueueSummary } from "@/lib/demo-data";
 
 export const queueRouter = router({
   /**
@@ -22,7 +23,12 @@ export const queueRouter = router({
     )
     .query(async ({ input, ctx }) => {
       if (ctx.isDemo) {
-        return { items: [], total: 0, page: 1, pageSize: input.pageSize, totalPages: 0 };
+        return getDemoQueueItems({
+          page: input.page,
+          pageSize: input.pageSize,
+          status: input.status,
+          sortOrder: input.sortOrder,
+        });
       }
       const conditions = [
         eq(documents.orgId, ctx.orgId),
@@ -99,7 +105,7 @@ export const queueRouter = router({
    */
   summary: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.isDemo) {
-      return { total: 0, pending: 0, processing: 0, completed: 0, errors: 0 };
+      return getDemoQueueSummary();
     }
     const baseCondition = and(
       eq(documents.orgId, ctx.orgId),
